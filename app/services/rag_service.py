@@ -65,7 +65,7 @@ class RAGService:
             print(f"Error initializing LLM: {e}")
             return None
         
-    async def add_documents(self, documents: List[str], metadata: List[dict]) => None:
+    async def add_documents(self, documents: List[str], metadata: List[dict] = None) -> bool:
         try:
             all_texts = []
             all_metadata = []
