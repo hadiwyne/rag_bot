@@ -47,4 +47,10 @@ class AWSService:
             print(f"Error setting up AWS infrastructure: {str(e)}")
             return False
         
-        
+    async def _create_s3_bucket(self):
+        try:
+            self.s3_client.create_bucket(Bucket=self.bucket_name)
+            print(f"S3 bucket '{self.bucket_name}' created successfully.")
+        except Exception as e:
+            if "BucketAlreadyOwnedByYou" not in str(e):
+                raise e
