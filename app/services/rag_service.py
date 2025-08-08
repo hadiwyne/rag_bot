@@ -89,3 +89,78 @@ class RAGService:
         except Exception as e:
             print(f"Error adding documents: {e}")
             return False
+
+    async def query_documents(self, question: str, k: int = 3) -> List[dict]:
+        try:
+            question = SecurityService.sanitize_input(question)
+
+            retriver = self.vector_store.as_retriever(search_kwargs={"k": k})
+            relevant_docs = retriver.get_relevant_documents(question)
+
+            if not relevant_docs:
+                return {
+                    "answer": "No relevant documents found.",
+                    "sources": [],
+                    "confidence": 0.0
+                }
+            
+            context = "\n".join([doc.page_content for doc in relevant_docs])
+
+            if self.llm:
+                result = self.llm(question=question, context=context)
+                answer = result['answer']
+                confidence = result.get('score', 0.5)
+
+            else:
+                # Fallback to extractive QA if LLM is not available
+                answer = self._extractive_answer(question, context)
+                confidence = 0.5
+
+            return {
+                "answer": answer,
+                "sources": [{"content": doc.page_content, "metadata": doc.metadata} 
+                            for doc in relevant_docs],
+                "confidence": confidence
+            }
+
+        except Exception as e:
+            print(f"Error querying documents: {e}")
+            return{
+                "answer": "Error processing query.",
+                "sources": [],
+                "confidence": 0.0
+            }
+    
+    def _extractive_answer(self, question: str, context: str) -> str:
+        question_words = question.lower().split()
+        context_sentences = context.split('. ')
+
+        best_sentence = ""
+        max_matches = 0
+
+        for sentence in context_sentences:
+            sentence_words = sentence.lower().split()
+            matches = sum(1 for word in question_words if word in sentence_words)
+
+            if matches > max_matches:
+                max_matches = matches
+                best_sentence = sentence.strip()
+
+        return best_sentence if best_sentence else "No answer found in the context."
+    
+
+    async def get_document_stats(self) -> dict:
+        try:
+            collection = self.chroma_client.get_collection("documents")
+            count = collection.count()
+
+            return {
+                "total_documents": count,
+                "collection_name": "documents",
+            }
+        except Exception as e:
+            print(f"Error getting document stats: {e}")
+            return {
+                "total_documents": 0,
+                "collection_name": "documents",
+            }
