@@ -13,3 +13,13 @@ from app.services.document_service import DocumentService
 from app.services.aws_service import AWSService
 from app.models.query import QueryRequest, QueryResponse
 from app.models.document import DocumentResponse
+
+app = FastAPI(
+    title=settings.app_name,
+    description="Enterprise RAG System for Abdul Hadi's Portfolio",
+    version="1.0.0"
+)
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
