@@ -138,3 +138,153 @@ def main():
                 del st.session_state.token
                 st.rerun()
 
+        if ui.token:
+            st.header("Document Management")
+            col1, col2 = st.columns([2, 1])
+
+            with col1:
+                uploaded_file=st.file_uploader(
+                    "Upload documents (PDF, DOCX, TXT)",
+                    type=["pdf", "docx", "txt"],
+                    help = "Upload your documents for processing and to be added into the knowledge base"
+                )
+
+                if uploaded_file and st.button("Process Document"):
+                    if ui.upload_document(uploaded_file):
+                        st.success(f"Document '{uploaded_file.name}' uploaded successfully.")
+                        time.sleep(1)
+                        st.rerun()
+
+            with col2:
+                st.subheader("Document Statistics")
+                docs = ui.get_documents_list()
+                if docs:
+                    st.metric("Total Documents", len(docs))
+                    with st.expander("View Documents"):
+                        for doc in docs[:10]: # Display only first 10 documents, you can edit this
+                            st.text(f"- {doc['name']} (ID: {doc['id']})")
+                else:
+                    st.metric("No documents found. Please upload some documents to get started.")
+
+            st.markdown("---")
+
+            st.header("Ask Questions")
+
+            if "message" not in st.session_state:
+                st.session_state.message = []
+
+                for message in st.session_state.messages:
+                    with st.chat_message(message["role"]):
+                        st.markdown(message["content"])
+                        if message["role"] == "assistant" and "sources" in message:
+                            with st.expander("Sources"):
+                                for i, source in enumerate(message["sources"], 1):
+                                    st.text(f"{i}. {source['content'][:200]}...")
+                
+                if prompt := st.chat_input("Ask a question about your documents..."):
+                    st.session_state.message.append({"role": "user", "content": prompt})
+
+                    with st.chat_message("user"):
+                        st.markdown(prompt)
+
+                    with st.chat_message("assistant"):
+                        result=ui.query_documents(prompt)
+
+                        if result:
+                            response = result["answer"]
+                            confidence = result["confidence"]
+                            sources = result["sources"]
+
+                            st.markdown(f"**Answer (Confidence: {confidence:.2%}):**")
+                            st.markdown(response)
+
+                            if sources:
+                                with st.expander("Sources"):
+                                    for i, source in enumerate(sources, 1):
+                                        st.text(f"{i}. {source['content'][:200]}...")
+
+                            st.session_state.messages.append({
+                                "role": "assistant",
+                                "content": response,
+                                "sources": sources
+                            })
+
+                        else:
+                            error_msg = "Sorry, I couldn't process your question. Please try again."
+                            st.error(error_msg)
+                            st.session_state.messages.append({
+                                "role": "assistant",
+                                "content": error_msg
+                            })
+                
+                st.sidebar.markdown("---")
+                st.sidebar.subheader("System Status")
+
+                try:
+                    response = requests.get(f"{API_BASE_URL}/health")
+                    if response.status_code == 200:
+                        health = response.json()
+                        st.sidebar.success("System is running smoothly!")
+
+                        aws_status = health.get("services", {}).get("aws", {})
+                        s3_status = "✅" if aws_status.get("s3") else "❌"
+                        lambda_status = "✅" if aws_status.get("lambda") else "❌"
+
+                        st.sidebar.text(f"S3 Status: {s3_status}")
+                        st.sidebar.text(f"Lambda Status: {lambda_status}")
+                    else:
+                        st.sidebar.error("System health check failed.")
+                except:
+                    st.sidebar.error("API Unreachable")
+
+            else:
+                st.title("🤖 Enterprise RAG System")
+                st.markdown("""
+                ## Welcome to the Enterprise RAG System
+                
+                This system demonstrates:
+                - **Retrieval-Augmented Generation (RAG)** using LangChain
+                - **Document Processing** with multiple formats
+                - **AWS Services Integration** (LocalStack simulation)
+                - **Secure Authentication** with JWT tokens
+                - **Vector Search** with ChromaDB
+                - **Microservices Architecture** with FastAPI
+                
+                **Demo Credentials:**
+                - Username: `demo`
+                - Password: `demo123`
+                
+                Please authenticate in the sidebar to get started.
+                """)
+
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.subheader("RAG Technology")
+                    st.markdown("""
+                        - Document chunking and embedding
+                        - Semantic search with vector database
+                        - Context-aware answer generation
+                        - Source attribution and confidence scoring
+                        """)
+                    
+                with col2:
+                    st.subheader("AWS Integration")
+                    st.markdown("""
+                    - S3 for document storage
+                    - Lambda for processing
+                    - LocalStack for development
+                    - Scalable microservices architecture
+                    """)
+
+                with col3:
+                    st.subheader("Security Features")
+                    st.markdown("""
+                    - JWT authentication
+                    - Rate limiting
+                    - Input validation and sanitization
+                    - Secure file handling
+                    """)
+
+if __name__ == "__main__":
+    main()
+
