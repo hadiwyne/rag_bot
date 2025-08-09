@@ -4,6 +4,7 @@ from app.services.rag_service import RAGService
 
 @pytest.fixture
 async def rag_service():
+    
     service = RAGService()
     yield service
 
