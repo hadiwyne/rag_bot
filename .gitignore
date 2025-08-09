@@ -1,1 +1,337 @@
+# =============================================================================
+# Environment Variables & Secrets (CRITICAL SECURITY)
+# =============================================================================
+# Environment files - Contains SECRET_KEY, AWS credentials, etc.
 .env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+!.env.example
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv
+
+# =============================================================================
+# AI/ML Specific - ChromaDB & Model Files
+# =============================================================================
+# ChromaDB persistent storage (as configured in settings)
+data/chroma_db/
+./data/chroma_db/
+chroma_db/
+*.chroma
+
+# HuggingFace model cache and downloads
+.cache/
+transformers_cache/
+huggingface/
+sentence-transformers/
+
+# Large model files
+*.pkl
+*.joblib
+*.h5
+*.pb
+*.onnx
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Vector embeddings and indexes
+embeddings/
+vector_store/
+*.index
+*.faiss
+
+# =============================================================================
+# FastAPI Specific
+# =============================================================================
+# Session data
+sessions/
+
+# API logs
+api_logs/
+access.log
+error.log
+
+# =============================================================================
+# Streamlit Specific
+# =============================================================================
+# Streamlit secrets and config
+.streamlit/secrets.toml
+.streamlit/config.toml
+.streamlit/
+
+# Streamlit session state persistence (if any)
+streamlit_sessions/
+
+# =============================================================================
+# Document Processing & Uploads
+# =============================================================================
+# User uploaded documents (security sensitive)
+uploads/
+user_uploads/
+documents/
+processed_documents/
+temp_documents/
+
+# Temporary files from document processing
+*.tmp
+temp_*
+tmp/
+
+# Keep sample documents for demo
+!documents/samples/
+!uploads/.gitkeep
+!data/samples/
+
+# =============================================================================
+# AWS & LocalStack
+# =============================================================================
+# LocalStack data directory
+.localstack/
+localstack-data/
+tmp/localstack/
+
+# AWS credentials (NEVER commit these!)
+.aws/
+aws-credentials.json
+credentials.json
+
+# LocalStack volumes (from docker-compose)
+infrastructure/localstack/data/
+
+# =============================================================================
+# Docker & Infrastructure
+# =============================================================================
+# Docker volumes and persistent data
+docker-data/
+volumes/
+data/
+
+# Docker override files
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+
+# Keep infrastructure configs but not runtime data
+!infrastructure/docker-compose.yml
+!infrastructure/localstack/init-aws.sh
+!infrastructure/nginx/nginx.conf
+
+# =============================================================================
+# Testing & Coverage
+# =============================================================================
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+test-results/
+test_*.db
+
+# Keep test files
+!tests/
+
+# =============================================================================
+# JWT & Authentication
+# =============================================================================
+# JWT private keys
+jwt_private_key.pem
+jwt_public_key.pem
+*.pem
+*.key
+
+# Session storage
+sessions/
+
+# =============================================================================
+# Logs & Monitoring
+# =============================================================================
+# Application logs
+*.log
+logs/
+log/
+app.log
+uvicorn.log
+
+# Rate limiting logs
+rate_limit.log
+
+# =============================================================================
+# Development & Debugging
+# =============================================================================
+# Development scratch files
+scratch.py
+test_script.py
+debug_*
+playground/
+temp.py
+experiment.py
+
+# Jupyter notebooks 
+.ipynb_checkpoints/
+*.ipynb
+
+# =============================================================================
+# IDE & Editor Files
+# =============================================================================
+# VSCode
+.vscode/
+!.vscode/settings.json.example
+!.vscode/launch.json.example
+
+# PyCharm
+.idea/
+
+# Vim
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# OS Generated Files
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+desktop.ini
+
+# =============================================================================
+# Security Sensitive Files
+# =============================================================================
+# Any files containing secrets or API keys
+secrets.txt
+api_keys.txt
+config_secrets.json
+
+# SSL certificates
+*.crt
+*.p12
+
+# =============================================================================
+# Performance & Profiling
+# =============================================================================
+*.prof
+*.pstat
+
+# =============================================================================
+# Backup Files
+# =============================================================================
+*.bak
+*.backup
+*.old
+*~
+
+# =============================================================================
+# Large Files & Archives
+# =============================================================================
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# =============================================================================
+# Project Structure 
+# =============================================================================
+# Force include critical project files
+!app/
+!frontend/
+!infrastructure/
+!tests/
+!requirements.txt
+!Dockerfile
+!README.md
+!deployment_guide.md
+!.env.example
+
+# Keep the main application structure
+!app/__init__.py
+!app/main.py
+!app/auth/
+!app/core/
+!app/models/
+!app/services/
+!app/utils/
+
+# Keep frontend
+!frontend/streamlit_app.py
+
+# Keep infrastructure configs
+!infrastructure/docker-compose.yml
+!infrastructure/localstack/
+!infrastructure/nginx/
+
+# Keep test structure
+!tests/test_*.py
+
+# =============================================================================
+# Specific to This Project's Data Structure
+# =============================================================================
+# ChromaDB persistent directory (as per settings.py)
+/data/chroma_db/
+./data/chroma_db/
+
+# But keep the data directory structure
+!data/
+!data/.gitkeep
+
+# Any runtime document storage
+user_data/
+runtime_data/
+
+# Model downloads directory
+models/
+model_cache/
+
+# =============================================================================
+# Rate Limiting & Security
+# =============================================================================
+# Rate limiting storage files (if using file-based storage)
+rate_limit_storage/
+*.rate_limit
+
+# Security scan results
+security_scan_*
+bandit_results.json
